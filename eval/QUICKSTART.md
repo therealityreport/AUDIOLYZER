@@ -21,7 +21,7 @@ huggingface-cli login
 ```
 
 Accept model terms:
-- https://huggingface.co/pyannote/speaker-diarization-3.1
+- https://huggingface.co/pyannote/speaker-diarization@2.1
 - https://huggingface.co/pyannote/segmentation-3.0
 
 ## Step 2: Add Test Clips (1 min)

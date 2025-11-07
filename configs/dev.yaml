@@ -47,7 +47,7 @@ providers:
     project_env: OPENAI_PROJECT_ID
   pyannote:
     enabled: true
-    model: pyannote/speaker-diarization-3.1
+    model: pyannote/speaker-diarization@2.1
     segmentation_threshold: 0.5
     auth_token_env: PYANNOTE_TOKEN
     embedding_model: pyannote/wespeaker-voxceleb-resnet34-LM
@@ -66,7 +66,7 @@ audio:
     true_peak: -1.0
     method: ebu_r128
 audio_preprocessing:
-  enable: false
+  enable: true
   retain_intermediates: true
   vocal_separation:
     enable: true
@@ -77,13 +77,13 @@ audio_preprocessing:
     device: auto
     timeout_seconds: 900
   enhancement:
-    enable: "auto"
+    enable: true
     denoise: true
     dereverb: true
-    nfe: 32
+    nfe: 64
     solver: midpoint
-    lambd: 0.5
-    tau: 0.4
+    lambd: 0.7
+    tau: 0.6
     provider: resemble
     clearervoice:
       separation_model: MossFormer2_SS_16K
@@ -101,8 +101,10 @@ transcription:
   initial_prompt: null
   word_timestamps_threshold: 0.4
 diarization:
-  min_speakers: 1
-  max_speakers: 9
+  provider: pyannote
+  model: pyannote/speaker-diarization@2.1
+  min_speakers: null
+  max_speakers: 10
   onset: 0.12
   offset: 0.06
   min_duration_on: 0.18

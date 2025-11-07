@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +12,9 @@ class PyAnnoteDiarization:
 
     def __init__(
         self,
-        pipeline: str = "pyannote/speaker-diarization-3.1",
-        min_speakers: Optional[int] = None,
-        max_speakers: Optional[int] = None,
+        pipeline: str = "pyannote/speaker-diarization@2.1",
+        min_speakers: int | None = None,
+        max_speakers: int | None = None,
         segmentation_onset: float = 0.5,
         clustering_threshold: float = 0.7,
     ):
@@ -51,7 +51,7 @@ class PyAnnoteDiarization:
         except ImportError:
             raise ImportError(
                 "pyannote.audio is not installed. Install with: pip install pyannote.audio"
-            )
+            ) from None
         except Exception as e:
             logger.error(f"Failed to load pyannote pipeline: {e}")
             logger.error(
@@ -60,7 +60,7 @@ class PyAnnoteDiarization:
             )
             raise
 
-    def diarize(self, audio_path: str | Path) -> List[Tuple[float, float, str]]:
+    def diarize(self, audio_path: str | Path) -> list[tuple[float, float, str]]:
         """Perform speaker diarization.
 
         Args:
@@ -103,7 +103,7 @@ class PyAnnoteDiarization:
 
     def diarize_to_rttm(
         self, audio_path: str | Path, output_path: str | Path
-    ) -> List[Tuple[float, float, str]]:
+    ) -> list[tuple[float, float, str]]:
         """Perform diarization and save as RTTM.
 
         Args:
@@ -135,8 +135,8 @@ class PyAnnoteDiarization:
         return segments
 
     def diarize_batch(
-        self, audio_paths: List[str | Path], output_dir: Optional[str | Path] = None
-    ) -> Dict[str, List[Tuple[float, float, str]]]:
+        self, audio_paths: list[str | Path], output_dir: str | Path | None = None
+    ) -> dict[str, list[tuple[float, float, str]]]:
         """Diarize multiple audio files.
 
         Args:
@@ -168,8 +168,8 @@ class PyAnnoteDiarization:
 
 
 def run_pyannote(
-    audio_path: str | Path, output_path: str | Path, config: Dict[str, Any]
-) -> List[Tuple[float, float, str]]:
+    audio_path: str | Path, output_path: str | Path, config: dict[str, Any]
+) -> list[tuple[float, float, str]]:
     """Run pyannote diarization on an audio file.
 
     Args:
@@ -183,13 +183,11 @@ def run_pyannote(
     diar_config = config.get("diarization", {}).get("pyannote", {})
 
     diarizer = PyAnnoteDiarization(
-        pipeline=diar_config.get("pipeline", "pyannote/speaker-diarization-3.1"),
+        pipeline=diar_config.get("pipeline", "pyannote/speaker-diarization@2.1"),
         min_speakers=diar_config.get("min_speakers"),
         max_speakers=diar_config.get("max_speakers"),
         segmentation_onset=diar_config.get("segmentation_onset", 0.5),
         clustering_threshold=diar_config.get("clustering_threshold", 0.7),
     )
 
-    segments = diarizer.diarize_to_rttm(audio_path, output_path)
-
-    return segments
+    return diarizer.diarize_to_rttm(audio_path, output_path)

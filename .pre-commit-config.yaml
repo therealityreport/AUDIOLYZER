@@ -20,6 +20,7 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-PyYAML
+          - pydantic
         args: ["--config-file", "mypy.ini"]
   - repo: local
     hooks:

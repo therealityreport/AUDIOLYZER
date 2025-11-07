@@ -77,7 +77,7 @@ huggingface-cli login
 ```
 
 Accept model terms at:
-- https://huggingface.co/pyannote/speaker-diarization-3.1
+- https://huggingface.co/pyannote/speaker-diarization@2.1
 - https://huggingface.co/pyannote/segmentation-3.0
 
 #### SpeechBrain
@@ -221,7 +221,7 @@ asr:
 diarization:
   pyannote:
     enabled: true
-    pipeline: "pyannote/speaker-diarization-3.1"
+    pipeline: "pyannote/speaker-diarization@2.1"
 
   speechbrain:
     enabled: false  # Placeholder implementation
@@ -410,6 +410,25 @@ For ongoing benchmarking:
 # Or use --pairs to test specific configurations
 python runner.py --pairs "asr=faster_whisper dia=pyannote" --clean
 ```
+
+## Diarization DER Benchmark
+
+Benchmark the shipping presets against curated reality-TV clips:
+
+```bash
+# Evaluate default presets defined in bench_der.DEFAULT_CONFIGS
+python eval/diar/bench_der.py
+
+# Override manifest or configs
+python eval/diar/bench_der.py \\
+  --manifest eval/diar/manifest.json \\
+  --configs configs/dev.yaml configs/prod.yaml configs/reality_tv.yaml
+```
+
+- `eval/diar/manifest.json` lists each clip, the audio asset to run, and RTTM/segment references.
+- Results land in `eval/diar/results/der_results.csv` with per-clip DER, JER, detected speaker count, and overlap ratios.
+- `eval/diar/results/README.md` is regenerated on every run with per-config averages plus any clip-level outliers (`DER > mean + 0.05`).
+- Hugging Face auth (`PYANNOTE_TOKEN`, etc.) must be available because the harness instantiates the production diarizer stack.
 
 ## Requirements
 

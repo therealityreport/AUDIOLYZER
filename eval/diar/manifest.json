@@ -1,0 +1,50 @@
+[
+  {
+    "clip_id": "RHOBH_AMSTERDAMNv3",
+    "audio": "data/shows/RHOBH/episodes/AMSTERDAMNv3/audio/RHOBH_AMSTERDAMNv3_20251028_audio_extracted.wav",
+    "reference": {
+      "type": "segments",
+      "segments": [
+        {"speaker": "SPEAKER_00", "start": 12.4, "end": 32.8},
+        {"speaker": "SPEAKER_01", "start": 33.5, "end": 48.2},
+        {"speaker": "SPEAKER_02", "start": 48.1, "end": 58.7},
+        {"speaker": "SPEAKER_03", "start": 59.2, "end": 68.6},
+        {"speaker": "SPEAKER_04", "start": 68.0, "end": 75.4},
+        {"speaker": "SPEAKER_00", "start": 75.1, "end": 86.9},
+        {"speaker": "SPEAKER_02", "start": 87.0, "end": 101.3},
+        {"speaker": "SPEAKER_03", "start": 102.0, "end": 118.2}
+      ]
+    },
+    "notes": "Amsterdam dinner fight – requires ≥4 speakers"
+  },
+  {
+    "clip_id": "RHOSLC_BARBADOS",
+    "audio": "data/shows/RHOSLC/episodes/BARBADOS/audio/RHOSLC_BARBADOS_20251105_audio_enhanced.wav",
+    "reference": {
+      "type": "segments",
+      "segments": [
+        {"speaker": "SPEAKER_00", "start": 6.2, "end": 22.5},
+        {"speaker": "SPEAKER_01", "start": 22.0, "end": 34.8},
+        {"speaker": "SPEAKER_02", "start": 34.3, "end": 49.7},
+        {"speaker": "SPEAKER_03", "start": 50.1, "end": 63.9},
+        {"speaker": "SPEAKER_02", "start": 64.0, "end": 79.0},
+        {"speaker": "SPEAKER_01", "start": 79.2, "end": 90.1}
+      ]
+    },
+    "notes": "Poolside confrontation used in diarization regression tests"
+  },
+  {
+    "clip_id": "KIMMY_ANDY",
+    "audio": "data/shows/kimmy/episodes/andy/audio_extracted.wav",
+    "reference": {
+      "type": "segments",
+      "segments": [
+        {"speaker": "HOST", "start": 5.0, "end": 36.0},
+        {"speaker": "GUEST", "start": 36.2, "end": 62.4},
+        {"speaker": "HOST", "start": 62.6, "end": 88.0},
+        {"speaker": "GUEST", "start": 88.2, "end": 110.5}
+      ]
+    },
+    "notes": "Local test clip that ships with the repo"
+  }
+]

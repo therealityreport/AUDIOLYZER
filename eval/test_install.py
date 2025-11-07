@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Test script to verify installation of eval harness dependencies."""
 
+import shutil
+import subprocess
 import sys
 
 
@@ -47,12 +49,21 @@ def test_imports():
 
 def test_ffmpeg():
     """Test that ffmpeg is available."""
-    import subprocess
-
     print("\nTesting ffmpeg...")
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        print("  ✗ ffmpeg not found in PATH")
+        print("    Install with: brew install ffmpeg")
+        return False
+
     try:
-        result = subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
-        version_line = result.stdout.decode().split("\n")[0]
+        result = subprocess.run(  # noqa: S603
+            [ffmpeg_path, "-version"],
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        version_line = result.stdout.splitlines()[0]
         print(f"  ✓ {version_line}")
         return True
     except (FileNotFoundError, subprocess.CalledProcessError) as e:
@@ -71,13 +82,12 @@ def test_huggingface_auth():
         if token:
             print("  ✓ Hugging Face token found")
             return True
-        else:
-            print("  ⚠ No Hugging Face token found")
-            print("    Run: huggingface-cli login")
-            print("    Then accept model terms at:")
-            print("    - https://huggingface.co/pyannote/speaker-diarization-3.1")
-            print("    - https://huggingface.co/pyannote/segmentation-3.0")
-            return False
+        print("  ⚠ No Hugging Face token found")
+        print("    Run: huggingface-cli login")
+        print("    Then accept model terms at:")
+        print("    - https://huggingface.co/pyannote/speaker-diarization@2.1")
+        print("    - https://huggingface.co/pyannote/segmentation-3.0")
+        return False
     except ImportError:
         print("  ⚠ huggingface_hub not installed")
         print("    Install with: pip install huggingface_hub[cli]")
