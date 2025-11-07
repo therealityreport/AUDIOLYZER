@@ -1,0 +1,30 @@
+# Core dependencies
+pyyaml==6.0.1
+numpy==1.26.3
+
+# ASR tools
+faster-whisper==1.0.3
+sherpa-onnx==1.10.16
+
+# Diarization tools
+pyannote.audio==3.1.1
+speechbrain==1.0.0
+
+# Audio processing
+torch==2.1.2
+torchaudio==2.1.2
+
+# Machine learning utilities (required by SpeechBrain)
+scikit-learn==1.4.0
+
+# Scoring (optional but recommended)
+dscore==0.1.2  # Uncomment for accurate DER calculation
+
+# For Hugging Face model downloads
+huggingface-hub==0.20.3
+
+# Development dependencies (optional)
+# pytest==7.4.4
+# black==24.1.1
+# flake8==7.0.0
+# mypy==1.8.0

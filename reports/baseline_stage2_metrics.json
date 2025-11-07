@@ -1,0 +1,11 @@
+{
+  "source_video": "/Volumes/HardDrive/AUDIO ANALYZER/data/RHOBH-TEST-FULLSCENE-.mp4",
+  "audio_output": "/Volumes/HardDrive/AUDIO ANALYZER/data/shows/RHOBH/episodes/Rhobh_S00E01_fullscene/Rhobh_S00E01_fullscene_audio_extracted.wav",
+  "extraction_time_seconds": 9.596,
+  "transcription_time_seconds": 608.368,
+  "audio_duration_seconds": 243.7546875,
+  "segment_count": 146,
+  "word_count": 793,
+  "average_word_confidence": 0.941,
+  "timestamp": "2025-10-21T07:20:45Z"
+}

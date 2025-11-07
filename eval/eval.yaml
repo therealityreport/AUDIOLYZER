@@ -1,0 +1,89 @@
+# Evaluation Harness Configuration
+
+# Input/Output Paths
+paths:
+  input_dir: "data/clips"           # Folder with MP4/MOV/WAV files
+  output_dir: "outputs"
+
+# Audio preprocessing
+audio:
+  sample_rate: 16000
+  channels: 1                        # mono
+  bit_depth: 16
+  chunk_duration: 1800               # 30 minutes max per chunk (in seconds)
+  chunk_overlap: 5                   # overlap in seconds for long files
+
+# ASR Tools
+asr:
+  faster_whisper:
+    enabled: true
+    model: "base"                    # smaller model for testing
+    compute_type: "int8"             # compatible with more hardware
+    vad_filter: true
+    language: "en"
+    beam_size: 5
+    word_timestamps: true
+
+  sherpa_onnx:
+    enabled: false                   # disabled (models not downloaded)
+    model_type: "paraformer"         # or "zipformer"
+    model_path: "models/sherpa-onnx/paraformer"  # path to model directory
+    tokens: "tokens.txt"
+    model_file: "model.onnx"
+
+# Diarization Tools
+diarization:
+  pyannote:
+    enabled: true
+    pipeline: "pyannote/speaker-diarization-3.1"
+    min_speakers: null               # null = auto-detect
+    max_speakers: null
+    segmentation_onset: 0.5          # threshold for SAD
+    clustering_threshold: 0.7        # AgglomerativeClustering threshold
+
+  speechbrain:
+    enabled: false                   # Set to true to use SpeechBrain
+    source: "speechbrain/spkrec-ecapa-voxceleb"
+    oracle_n_speakers: false         # set to true if you know speaker count
+    num_speakers: null               # number of speakers if oracle_n_speakers is true
+    cluster_method: "spectral"       # "spectral" or "agglomerative"
+    threshold: 0.5                   # similarity threshold for clustering
+    window_size: 1.5                 # window size in seconds for embedding extraction
+    hop_size: 0.75                   # hop size in seconds for sliding window
+
+# Clips to process (if empty, processes all files in input_dir)
+clips: []
+# Example:
+# clips:
+#   - "solo_interview.mp4"
+#   - "dialog.wav"
+#   - "party_scene.mov"
+
+# Reference files (optional, for scoring)
+references:
+  transcripts_dir: null              # Directory with .txt files (same basename as clips)
+  rttm_dir: null                     # Directory with .rttm reference files
+
+# Alignment options
+alignment:
+  epsilon: 0.05                      # Tolerance for interval boundaries (seconds)
+  strict_sad: false                  # Skip words outside speech segments
+
+# Scoring weights for decision matrix
+scoring:
+  weights:
+    wer: 0.25
+    cpwer: 0.10
+    der: 0.15
+    jer: 0.0                         # will be calculated but not weighted yet
+    rtf_asr: 0.10
+    rtf_dia: 0.10
+    stability: 0.10
+    simplicity: 0.10                 # manual assessment
+    integration: 0.10                # manual assessment
+
+# Runtime options
+runtime:
+  measure_stability: true            # run ASR twice on one clip to measure variance
+  stability_clip_duration: 60       # seconds
+  log_level: "INFO"                 # DEBUG, INFO, WARNING, ERROR

@@ -1,0 +1,20 @@
+{
+  "total_cost_usd": 0.3416,
+  "transcription_count": 14,
+  "providers": {
+    "whisper_api": {
+      "total_cost_usd": 0.3416,
+      "transcription_count": 14,
+      "models": {
+        "whisper-1": {
+          "total_cost_usd": 0.3416,
+          "transcription_count": 14
+        }
+      },
+      "last_used": "2025-10-23T02:39:54.771+00:00",
+      "last_media_path": "/Volumes/HardDrive/AUDIO ANALYZER/data/shows/rhobh/episodes/Rhobh_S05E01_fullscene/Rhobh_S05E01_fullscene_audio_extracted.wav"
+    }
+  },
+  "last_updated": "2025-10-23T02:39:54.771+00:00",
+  "total_duration_seconds": 3412.6
+}

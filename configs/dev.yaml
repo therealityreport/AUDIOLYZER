@@ -1,0 +1,185 @@
+# Development configuration for Show-Scribe
+version: 1
+environment: dev
+metadata:
+  config_name: Development Defaults
+  description: Local development settings for Show-Scribe.
+paths:
+  project_root: .
+  data_root: ./data
+  output_root: ./outputs
+  cache_dir: ./data/cache
+  temp_dir: ./data/tmp
+  models_dir: ./data/models
+  voice_bank_db: ./data/voice_bank/voice_bank.sqlite3
+  logs_dir: ./logs
+logging:
+  level: DEBUG
+  rich_tracebacks: true
+  json: false
+  file:
+    enabled: false
+    path: ./logs/show-scribe.log
+    rotation_mb: 10
+    retention_days: 7
+runtime:
+  max_workers: 4
+  prefer_gpu: true
+  device_priority:
+    - mps
+    - cpu
+  ffmpeg_path: /opt/homebrew/bin/ffmpeg
+providers:
+  whisper:
+    mode: local
+    model: medium
+    device: auto
+    compute_type: int8
+    download_root: ./data/models/whisper
+    beam_size: 4
+  whisper_api:
+    api_base_url: https://api.openai.com/v1/audio/transcriptions
+    timeout_seconds: 600
+    max_retries: 2
+    model: whisper-1
+    api_key_env: OPENAI_API_KEY
+    organization_env: OPENAI_ORG_ID
+    project_env: OPENAI_PROJECT_ID
+  pyannote:
+    enabled: true
+    model: pyannote/speaker-diarization-3.1
+    segmentation_threshold: 0.5
+    auth_token_env: PYANNOTE_TOKEN
+    embedding_model: pyannote/wespeaker-voxceleb-resnet34-LM
+  resemblyzer:
+    enabled: true
+    model: resemblyzer/vad
+    embedding_threshold: 0.78
+    min_utterance_seconds: 1.0
+audio:
+  sample_rate: 16000
+  channels: 1
+  format: wav
+  normalization:
+    target_lufs: -20.0
+    loudness_range: 7.0
+    true_peak: -1.0
+    method: ebu_r128
+audio_preprocessing:
+  enable: false
+  retain_intermediates: true
+  vocal_separation:
+    enable: true
+    model: htdemucs
+    segment_seconds: 6
+    overlap: 0.10
+    shifts: 0
+    device: auto
+    timeout_seconds: 900
+  enhancement:
+    enable: "auto"
+    denoise: true
+    dereverb: true
+    nfe: 32
+    solver: midpoint
+    lambd: 0.5
+    tau: 0.4
+    provider: resemble
+    clearervoice:
+      separation_model: MossFormer2_SS_16K
+      enhancement_model: FRCRN_SE_16K
+      target_sample_rate: 16000
+processing:
+  resume_on_start: true
+  max_episode_duration_minutes: 120
+  checkpoint_interval_seconds: 300
+  cleanup_temp_on_finish: true
+transcription:
+  language: null
+  temperature: 0.0
+  enable_word_timestamps: true
+  initial_prompt: null
+  word_timestamps_threshold: 0.4
+diarization:
+  min_speakers: 1
+  max_speakers: 9
+  onset: 0.12
+  offset: 0.06
+  min_duration_on: 0.18
+  min_duration_off: 0.12
+  overlap_threshold: null  # Use pyannote's default (~0.7) for stricter speaker separation
+alignment:
+  max_time_diff_seconds: 0.5
+  prefer_longer_segments: true
+voice_identification:
+  embedding_provider: pyannote
+  high_confidence_threshold: 0.85
+  medium_confidence_threshold: 0.7
+  low_confidence_threshold: 0.5
+  auto_register_new_speakers: true
+  min_samples_required: 2
+bleeps:
+  enable: true
+  detect_types:
+    - tone
+    - mute
+    - noise
+  tone_min_dur_ms: 80
+  merge_gap_ms: 120
+  min_snr_db: 10
+  suggest_words: true
+  use_ml_classifier: false
+  confidence_threshold: 0.7
+voice_bank:
+  auto_backup: true
+  max_embeddings_per_speaker: 20
+  backup_frequency_days: 7
+  backup_dir: ./data/voice_bank/backups
+  match_threshold: 0.82
+  min_sample_duration_seconds: 1.0
+ui:
+  streamlit:
+    port: 8501
+    auto_open_browser: true
+    theme: dark
+    layout: wide
+    auto_refresh_seconds: 5
+  audio_player:
+    preroll_ms: 2000
+    waveform_enabled: true
+    keyboard_shortcuts_enabled: true
+outputs:
+  export_formats:
+    - txt
+    - srt
+    - json
+    - csv
+  include_confidence_scores: true
+  include_word_timestamps: true
+  save_intermediate_files: true
+features:
+  auto_correct_names: true
+  enable_transcript_builder: true
+  enable_voice_bank: true
+  enable_bleep_detection: true
+integrations:
+  slack:
+    enabled: false
+    webhook_url: null
+    channel: null
+  email:
+    enabled: false
+    smtp_server: null
+    smtp_port: 587
+    use_tls: true
+    username: null
+    from_address: null
+    to_addresses: []
+monitoring:
+  enable_metrics: false
+  metrics_port: 9123
+  capture_system_stats: true
+cache:
+  enabled: true
+  max_size_gb: 10
+  cleanup_on_start: false

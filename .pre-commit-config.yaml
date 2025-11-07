@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  - repo: https://github.com/psf/black
+    rev: 24.4.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-PyYAML
+        args: ["--config-file", "mypy.ini"]
+  - repo: local
+    hooks:
+      - id: verify-cast-sync
+        name: verify cast sync is up-to-date
+        entry: python scripts/maintenance/sync_cast_configs.py --check
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: pytest
+        name: pytest
+        entry: bash -c 'pytest'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-push]

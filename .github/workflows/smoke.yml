@@ -1,0 +1,129 @@
+name: Smoke Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r eval/requirements.txt
+
+    - name: Generate test sample
+      run: |
+        python tests/generate_sample.py
+
+    - name: Verify sample exists
+      run: |
+        ls -lh tests/data/sample.wav
+        file tests/data/sample.wav
+
+    - name: Run installation test
+      run: |
+        python eval/test_install.py
+
+    - name: Prepare test config
+      run: |
+        # Copy sample to data/clips for processing
+        mkdir -p data/clips
+        cp tests/data/sample.wav data/clips/
+
+    - name: Run evaluation (skip scoring)
+      run: |
+        python eval/runner.py \
+          --config eval/eval.yaml \
+          --skip score \
+          --verbose
+
+    - name: Verify outputs - ASR
+      run: |
+        echo "Checking ASR outputs..."
+        if [ -f "outputs/asr/faster_whisper/sample.json" ]; then
+          echo "✓ faster-whisper output exists"
+          cat outputs/asr/faster_whisper/sample.json | head -20
+        else
+          echo "✗ faster-whisper output missing"
+          exit 1
+        fi
+
+    - name: Verify outputs - Diarization
+      run: |
+        echo "Checking diarization outputs..."
+        if [ -f "outputs/dia/pyannote/sample.rttm" ]; then
+          echo "✓ pyannote output exists"
+          cat outputs/dia/pyannote/sample.rttm
+        else
+          echo "✗ pyannote output missing"
+          exit 1
+        fi
+
+    - name: Verify outputs - Alignment
+      run: |
+        echo "Checking alignment outputs..."
+        if [ -f "outputs/aligned/sample_faster_whisper_pyannote.jsonl" ]; then
+          echo "✓ Alignment output exists"
+          head -10 outputs/aligned/sample_faster_whisper_pyannote.jsonl
+        else
+          echo "✗ Alignment output missing"
+          exit 1
+        fi
+
+    - name: Verify env manifest
+      run: |
+        echo "Checking environment manifest..."
+        if [ -f "outputs/logs/env.json" ]; then
+          echo "✓ Environment manifest exists"
+          cat outputs/logs/env.json | head -30
+        else
+          echo "✗ Environment manifest missing"
+          exit 1
+        fi
+
+    - name: Print runtime summary
+      run: |
+        echo "Runtime Summary:"
+        if [ -f "outputs/logs/runtime.jsonl" ]; then
+          cat outputs/logs/runtime.jsonl
+          echo ""
+          echo "RTF Statistics:"
+          grep "rtf" outputs/logs/runtime.jsonl || echo "No RTF data"
+        else
+          echo "Runtime log not found"
+        fi
+
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: smoke-test-outputs
+        path: |
+          outputs/
+          tests/data/sample.wav
+        retention-days: 7
+
+    - name: Test cleanup flag
+      run: |
+        echo "Testing --clean flag..."
+        mkdir -p outputs/tmp
+        touch outputs/tmp/test.txt
+        python eval/runner.py --clean --help
+        # Verify tmp was cleaned
+        if [ ! -d "outputs/tmp" ]; then
+          echo "✓ Cleanup working"
+        fi

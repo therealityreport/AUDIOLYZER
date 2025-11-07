@@ -1,0 +1,97 @@
+# Fast Configuration - Quick Testing (Minimal Quality)
+# ~2-3 minutes for 4-min video (separation only, no enhancement)
+
+audio_preprocessing:
+  enable: true
+  retain_intermediates: true
+
+  vocal_separation:
+    enable: true
+    model: "htdemucs"         # Default model
+    segment_seconds: 4        # Smaller segments for speed
+    overlap: 0.06             # Minimal overlap
+    shifts: 0                 # No TTA passes
+    device: "auto"
+    timeout_seconds: 600      # 10 min timeout
+
+  enhancement:
+    enable: false             # DISABLED in fast preset for speed
+
+# Audio extraction
+audio:
+  sample_rate: 16000
+  channels: 1
+  codec: "pcm_s16le"
+  format: "wav"
+  normalization:
+    target_lufs: -16.0
+    loudness_range: 11.0
+    true_peak: -1.0
+    dual_pass: false
+
+# Transcription
+whisper:
+  provider: "local"
+  model: "base"             # Faster model for testing
+  device: "auto"
+  compute_type: "int8"
+  language: "en"
+  task: "transcribe"
+  beam_size: 3              # Faster decoding
+  best_of: 1
+  temperature: 0
+  word_timestamps: true
+
+# Diarization
+diarization:
+  provider: "pyannote"
+  model: "pyannote/speaker-diarization@2.1"
+  min_speakers: null
+  max_speakers: 10
+  min_duration_on: 0.3
+  min_duration_off: 0.3
+
+# Speaker identification
+speaker_identification:
+  embedding_provider: "pyannote"
+  high_confidence_threshold: 0.85
+  medium_confidence_threshold: 0.70
+  low_confidence_threshold: 0.50
+  max_embeddings_per_speaker: 20
+  min_segment_duration: 2.0
+
+# Alignment
+alignment:
+  max_time_diff_seconds: 0.5
+  prefer_longer_segments: true
+
+# Output
+output:
+  formats: ["txt", "srt", "json"]
+  transcript:
+    include_timestamps: true
+    include_confidence: true
+    speaker_label_format: "{name}"
+
+# Performance
+performance:
+  max_workers: 2
+  chunk_size_minutes: 30
+  cache_models: true
+  low_memory_mode: false
+
+# Paths
+paths:
+  voice_bank_root: "./data/voice_bank"
+  shows_root: "./data/shows"
+  config_root: "./configs"
+  backups_root: "./data/backups"
+  models_cache: "./data/models"
+  temp_dir: "./data/tmp"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "detailed"
+  log_to_file: true
+  log_file: "logs/processing.log"

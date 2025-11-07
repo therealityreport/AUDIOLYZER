@@ -1,0 +1,177 @@
+# Production configuration for Show-Scribe
+version: 1
+environment: prod
+metadata:
+  config_name: Production Defaults
+  description: Hardened production configuration for Show-Scribe services.
+paths:
+  project_root: /opt/show-scribe
+  data_root: /var/lib/show-scribe/data
+  output_root: /var/lib/show-scribe/outputs
+  cache_dir: /var/lib/show-scribe/cache
+  temp_dir: /var/lib/show-scribe/tmp
+  models_dir: /var/lib/show-scribe/models
+  voice_bank_db: /var/lib/show-scribe/voice_bank/voice_bank.sqlite3
+  logs_dir: /var/log/show-scribe
+logging:
+  level: INFO
+  rich_tracebacks: false
+  json: true
+  file:
+    enabled: true
+    path: /var/log/show-scribe/show-scribe.log
+    rotation_mb: 100
+    retention_days: 30
+runtime:
+  max_workers: 8
+  prefer_gpu: true
+  device_priority:
+    - cuda
+    - mps
+    - cpu
+  ffmpeg_path: /usr/local/bin/ffmpeg
+providers:
+  whisper:
+    mode: local
+    model: large-v3
+    compute_type: float16
+    device: auto
+    download_root: /var/lib/show-scribe/models/whisper
+    beam_size: 10
+  whisper_api:
+    api_base_url: https://api.openai.com/v1/audio/transcriptions
+    timeout_seconds: 480
+    max_retries: 4
+    model: whisper-1
+    api_key_env: OPENAI_API_KEY
+  pyannote:
+    enabled: true
+    model: pyannote/speaker-diarization-3.1
+    segmentation_threshold: 0.55
+    auth_token_env: PYANNOTE_TOKEN
+    embedding_model: pyannote/embedding
+  resemblyzer:
+    enabled: true
+    model: resemblyzer/vad
+    embedding_threshold: 0.8
+    min_utterance_seconds: 1.2
+audio:
+  sample_rate: 16000
+  channels: 1
+  format: wav
+  normalization:
+    target_lufs: -20.0
+    loudness_range: 6.0
+    true_peak: -1.0
+    method: ebu_r128_strict
+audio_preprocessing:
+  enable: false
+  retain_intermediates: false
+  vocal_separation:
+    enable: true
+    model: htdemucs
+  enhancement:
+    enable: true
+    denoise: true
+    dereverb: true
+    nfe: 64
+    solver: midpoint
+    lambd: 0.7
+    tau: 0.6
+    provider: resemble
+    clearervoice:
+      separation_model: MossFormer2_SS_16K
+      enhancement_model: FRCRN_SE_16K
+      target_sample_rate: 16000
+processing:
+  resume_on_start: true
+  max_episode_duration_minutes: 240
+  checkpoint_interval_seconds: 180
+  cleanup_temp_on_finish: true
+transcription:
+  language: auto
+  temperature: 0.0
+  enable_word_timestamps: true
+  initial_prompt: null
+  word_timestamps_threshold: 0.35
+diarization:
+  min_speakers: 1
+  max_speakers: 10
+  onset: 0.45
+  offset: 0.25
+  overlap_threshold: 0.7
+alignment:
+  max_time_diff_seconds: 0.5
+  prefer_longer_segments: true
+voice_identification:
+  embedding_provider: pyannote
+  high_confidence_threshold: 0.88
+  medium_confidence_threshold: 0.75
+  low_confidence_threshold: 0.6
+  auto_register_new_speakers: false
+  min_samples_required: 8
+bleeps:
+  enable: true
+  detect_types:
+    - tone
+    - mute
+    - noise
+  tone_min_dur_ms: 80
+  merge_gap_ms: 100
+  min_snr_db: 12
+  suggest_words: true
+  use_ml_classifier: true
+  confidence_threshold: 0.75
+voice_bank:
+  auto_backup: true
+  max_embeddings_per_speaker: 30
+  backup_frequency_days: 3
+  backup_dir: /var/backups/show-scribe/voice_bank
+  match_threshold: 0.85
+  min_sample_duration_seconds: 1.5
+ui:
+  streamlit:
+    port: 8501
+    auto_open_browser: false
+    theme: light
+    layout: wide
+    auto_refresh_seconds: 10
+  audio_player:
+    preroll_ms: 1500
+    waveform_enabled: true
+    keyboard_shortcuts_enabled: true
+outputs:
+  export_formats:
+    - txt
+    - srt
+    - json
+    - csv
+  include_confidence_scores: true
+  include_word_timestamps: true
+  save_intermediate_files: false
+features:
+  auto_correct_names: true
+  enable_transcript_builder: true
+  enable_voice_bank: true
+  enable_bleep_detection: true
+integrations:
+  slack:
+    enabled: false
+    webhook_url: null
+    channel: null
+  email:
+    enabled: false
+    smtp_server: null
+    smtp_port: 587
+    use_tls: true
+    username: null
+    from_address: null
+    to_addresses: []
+monitoring:
+  enable_metrics: true
+  metrics_port: 9100
+  capture_system_stats: true
+cache:
+  enabled: true
+  max_size_gb: 25
+  cleanup_on_start: false

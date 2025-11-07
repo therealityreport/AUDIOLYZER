@@ -1,0 +1,59 @@
+# Data directories
+/data/episodes/
+/data/voice_bank/
+/data/cache/
+/data/raw/
+/data/tmp/
+/data/models/
+/data/shows/
+/data/clips/
+/data/AUDIO\ FILES/
+/data/video-files/
+/outputs/
+/exports/
+!data/README.md
+!outputs/README.md
+data/models/
+data/video-files/
+
+# Models
+*.bin
+*.pt
+*.onnx
+/models/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Environment files
+.env
+.env.*
+
+# Tooling
+.coverage
+htmlcov/
+.pyre/
+*.egg-info/
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

@@ -1,0 +1,222 @@
+# Reality TV Configuration Preset
+# Optimized for noisy environments with background music
+# Use cases: Restaurant scenes, outdoor locations, music venues
+
+# ====================================================================
+# AUDIO PREPROCESSING (NEW)
+# ====================================================================
+audio_preprocessing:
+  enable: true  # Master switch for preprocessing - now working with Demucs
+  retain_intermediates: true  # Keep stems for audit reviews
+
+  vocal_separation:
+    enable: true  # Always separate for reality TV
+    model: "htdemucs"  # Default Demucs model (reliable, good quality)
+    segment_seconds: 6   # Smaller segments reduce RAM usage
+    overlap: 0.10        # Reduce overlap for speed
+    shifts: 0            # Disable TTA for speed
+    device: "auto"
+    timeout_seconds: 1200  # 20 min timeout for longer episodes
+
+  enhancement:
+    enable: "auto"  # Only enhance when noise/reverb analysis suggests it
+    denoise: true
+    dereverb: true
+    nfe: 32  # Balanced speed/quality
+    lambd: 0.5  # Gentler denoising
+    tau: 0.4  # Gentler dereverberation
+    chunk_seconds: 18.0  # Process in 18-second chunks
+    target_sample_rate: 16000  # Whisper native rate
+    provider: resemble  # Set to "clearervoice" to enable ClearerVoice Studio
+    clearervoice:
+      separation_model: MossFormer2_SS_16K
+      enhancement_model: FRCRN_SE_16K
+      target_sample_rate: 16000
+    # Speed tuning:
+    # - nfe: 16 (fast), 32 (balanced), 48 (higher quality)
+    # - For very noisy environments: lambd: 0.7, tau: 0.6
+    # - For moderate noise: lambd: 0.5, tau: 0.4
+
+# ====================================================================
+# AUDIO EXTRACTION
+# ====================================================================
+audio:
+  sample_rate: 16000  # Whisper's native rate
+  channels: 1  # Mono
+  codec: "pcm_s16le"  # Uncompressed
+  format: "wav"
+
+  normalization:
+    target_lufs: -16.0  # Slightly louder for noisy audio
+    loudness_range: 11.0
+    true_peak: -1.0
+    dual_pass: true  # Better quality, slower
+
+audio_quality:
+  min_duration_seconds: 1.0
+  min_peak_dbfs: -50.0
+  min_rms: 1.0e-4
+  enforce_strict: false  # Don't fail on quality issues
+
+# ====================================================================
+# TRANSCRIPTION (WHISPER)
+# ====================================================================
+whisper:
+  provider: "local"  # or "api" for faster processing
+  model: "medium"  # Balanced accuracy vs. speed
+  device: "auto"
+  compute_type: "int8"
+
+  # Transcription parameters
+  language: "en"
+  task: "transcribe"
+  beam_size: 4  # Lower beam for faster decoding
+  best_of: 3
+  temperature: 0  # Deterministic output
+  compression_ratio_threshold: 2.4
+  logprob_threshold: -1.0
+  no_speech_threshold: 0.6
+  condition_on_previous_text: true  # Use context
+  word_timestamps: true
+
+  # Reality TV context prompt
+  initial_prompt: "This is reality TV dialogue in a noisy restaurant with background music and crowd chatter. Multiple people are speaking naturally with interruptions and overlaps."
+
+# ====================================================================
+# DIARIZATION (SPEAKER SEGMENTATION)
+# ====================================================================
+diarization:
+  provider: "pyannote"
+  model: "pyannote/speaker-diarization@2.1"
+
+  # Speaker detection
+  min_speakers: null  # Auto-detect
+  max_speakers: 10  # Increase for group scenes
+
+  # Segmentation parameters
+  min_duration_on: 0.3  # Minimum speech duration (seconds)
+  min_duration_off: 0.3  # Minimum silence between speech
+
+  # For reality TV with quick exchanges, lower these:
+  # min_duration_on: 0.2
+  # min_duration_off: 0.2
+
+# ====================================================================
+# SPEAKER IDENTIFICATION
+# ====================================================================
+speaker_identification:
+  embedding_provider: "pyannote"  # or "resemblyzer"
+
+  # Confidence thresholds
+  high_confidence_threshold: 0.85  # Auto-label
+  medium_confidence_threshold: 0.70  # Flag for review
+  low_confidence_threshold: 0.50  # Require manual label
+
+  # Voice bank settings
+  max_embeddings_per_speaker: 20
+  min_segment_duration: 2.0  # Minimum seconds for quality embedding
+
+  # Reality TV: Lower thresholds due to variable audio quality
+  # high_confidence_threshold: 0.80
+  # medium_confidence_threshold: 0.65
+
+# ====================================================================
+# BLEEP DETECTION
+# ====================================================================
+bleep_detection:
+  enable: true
+
+  # Detection types
+  detect_tone: true
+  detect_mute: true
+  detect_noise: true
+
+  # Tone detection (beep sounds)
+  tone:
+    min_duration_ms: 80
+    max_duration_ms: 1000
+    min_frequency_hz: 800
+    max_frequency_hz: 2500
+    min_snr_db: 10  # Lower for noisy environments
+    crest_factor_threshold: 3.0
+
+  # Mute detection (silence drops)
+  mute:
+    min_duration_ms: 80
+    min_drop_db: 25  # Lower for variable audio levels
+    pre_post_margin_ms: 100
+
+  # Noise detection (broadband bursts)
+  noise:
+    min_duration_ms: 80
+    max_duration_ms: 1000
+    spectral_flatness_threshold: 0.7
+    min_energy_ratio: 2.0
+
+  # Post-processing
+  merge_gap_ms: 120  # Merge events close together
+  min_final_duration_ms: 80
+
+  # Word suggestion
+  suggest_words: false  # Turn off for reality TV (too unreliable)
+  word_suggestion_confidence_threshold: 0.7
+
+# ====================================================================
+# ALIGNMENT
+# ====================================================================
+alignment:
+  max_time_diff_seconds: 0.5
+  prefer_longer_segments: true
+
+# ====================================================================
+# OUTPUT
+# ====================================================================
+output:
+  formats:
+    - "txt"
+    - "srt"
+    - "json"
+
+  transcript:
+    include_timestamps: true
+    include_confidence: true
+    speaker_label_format: "{name}"
+
+  analytics:
+    enable: true
+    speaking_time: true
+    bleep_statistics: true
+
+  bleeps:
+    export_csv: true
+    export_json: true
+    include_audio_snippets: true
+
+# ====================================================================
+# PERFORMANCE
+# ====================================================================
+performance:
+  max_workers: 2  # Parallel processing
+  chunk_size_minutes: 30  # For long episodes
+  cache_models: true
+  low_memory_mode: false
+
+# ====================================================================
+# PATHS
+# ====================================================================
+paths:
+  voice_bank_root: "./data/voice_bank"
+  shows_root: "./data/shows"
+  config_root: "./configs"
+  backups_root: "./data/backups"
+  models_cache: "./data/models"
+  temp_dir: "./data/tmp"
+
+# ====================================================================
+# LOGGING
+# ====================================================================
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "detailed"
+  log_to_file: true
+  log_file: "logs/processing.log"

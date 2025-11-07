@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Show-Scribe Show Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["show_name", "cast_members"],
+  "properties": {
+    "show_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human friendly name of the show."
+    },
+    "show_slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Optional slug identifier (lowercase kebab-case)."
+    },
+    "season": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional default season number when unspecified elsewhere."
+    },
+    "cast_members": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/castMember"
+      },
+      "description": "Canonical cast definitions used for name validation and correction."
+    },
+    "confidence_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.8,
+      "description": "Minimum confidence required to auto-apply a correction."
+    },
+    "auto_correct_names": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable automatic name corrections when confidence threshold is met."
+    },
+    "name_correction": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Master toggle for the name correction subsystem."
+        },
+        "auto_correct_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.9,
+          "description": "Confidence value required to automatically apply a suggestion."
+        },
+        "fuzzy_match_cutoff": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.75,
+          "description": "Similarity score required for fuzzy matches to be considered."
+        },
+        "case_sensitive": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, matching retains original casing instead of lower-casing."
+        },
+        "preserve_formatting": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, preserves the source capitalization when applying corrections."
+        },
+        "prompt_on_ambiguous": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, ambiguous matches below threshold should be surfaced to the user."
+        },
+        "log_corrections": {
+          "type": "boolean",
+          "default": true,
+          "description": "Persist automated corrections to the name_corrections_log table."
+        }
+      },
+      "description": "Advanced name correction behaviour controls."
+    },
+    "transcription_prompt": {
+      "type": "string",
+      "description": "Optional initial prompt supplied to the ASR model for additional context."
+    },
+    "alignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_time_diff_seconds": { "type": "number", "minimum": 0 },
+        "prefer_longer_segments": { "type": "boolean" }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes about this show configuration."
+    }
+  },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "castMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_name"],
+      "properties": {
+        "canonical_name": {
+          "$ref": "#/definitions/nonEmptyString",
+          "description": "Canonical spelling used throughout transcripts and UI."
+        },
+        "common_misspellings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nonEmptyString"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "Frequently observed misspellings to correct automatically."
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nonEmptyString"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "Alternative names or nicknames for matching."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["main", "recurring", "guest", "host", "other"],
+          "default": "other",
+          "description": "Role classification used for UI filtering."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional metadata or reminders about this cast member."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "show_name": "The Office",
+  "show_slug": "the-office",
+  "transcription_prompt": "This is a mockumentary-style conversation from The Office. Characters speak over office ambience, quick banter, and occasional background chatter.",
+  "cast_members": [
+    {
+      "canonical_name": "Michael Scott",
+      "common_misspellings": ["Micheal Scott", "Michael Scot"],
+      "aliases": ["Michael", "Mike"],
+      "role": "main"
+    },
+    {
+      "canonical_name": "Dwight Schrute",
+      "common_misspellings": ["Dwight Shrute", "Dwite Schrute"],
+      "aliases": ["Dwight", "Dwight K. Schrute"],
+      "role": "main"
+    },
+    {
+      "canonical_name": "Jim Halpert",
+      "common_misspellings": ["Jim Halbert", "Jim Halpart"],
+      "aliases": ["Jim", "James Halpert"],
+      "role": "main"
+    },
+    {
+      "canonical_name": "Pam Beesly",
+      "common_misspellings": ["Pam Beasley", "Pam Beazley"],
+      "aliases": ["Pam", "Pamela"],
+      "role": "main"
+    }
+  ],
+  "confidence_threshold": 0.8,
+  "auto_correct_names": true,
+  "alignment": {
+    "max_time_diff_seconds": 0.5,
+    "prefer_longer_segments": true
+  },
+  "name_correction": {
+    "enabled": true,
+    "auto_correct_threshold": 0.9,
+    "fuzzy_match_cutoff": 0.75,
+    "case_sensitive": false,
+    "preserve_formatting": false,
+    "prompt_on_ambiguous": true,
+    "log_corrections": true
+  },
+  "notes": "Replace cast members with the canonical names for your show before running the pipeline."
+}

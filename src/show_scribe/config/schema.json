@@ -1,0 +1,1067 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "nullablePath": {
+      "minLength": 1,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pathString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "portNumber": {
+      "maximum": 65535,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "properties": {
+    "alignment": {
+      "additionalProperties": false,
+      "properties": {
+        "max_time_diff_seconds": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "prefer_longer_segments": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "audio": {
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "maximum": 2,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "format": {
+          "enum": [
+            "wav",
+            "flac",
+            "mp3"
+          ],
+          "type": "string"
+        },
+        "normalization": {
+          "additionalProperties": false,
+          "properties": {
+            "loudness_range": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "method": {
+              "enum": [
+                "ebu_r128",
+                "ebu_r128_strict"
+              ],
+              "type": "string"
+            },
+            "target_lufs": {
+              "type": "number"
+            },
+            "true_peak": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "target_lufs",
+            "loudness_range",
+            "true_peak",
+            "method"
+          ],
+          "type": "object"
+        },
+        "sample_rate": {
+          "minimum": 8000,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sample_rate",
+        "channels",
+        "format",
+        "normalization"
+      ],
+      "type": "object"
+    },
+    "audio_preprocessing": {
+      "additionalProperties": false,
+      "properties": {
+        "enable": {
+          "default": false,
+          "enum": [
+            true,
+            false,
+            "auto"
+          ],
+          "type": [
+            "boolean",
+            "string"
+          ]
+        },
+        "enhancement": {
+          "additionalProperties": false,
+          "properties": {
+            "clearervoice": {
+              "additionalProperties": false,
+              "properties": {
+                "enhancement_model": {
+                  "default": "FRCRN_SE_16K",
+                  "type": "string"
+                },
+                "separation_model": {
+                  "default": "MossFormer2_SS_16K",
+                  "type": "string"
+                },
+                "super_resolution_model": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "target_sample_rate": {
+                  "default": 16000,
+                  "maximum": 96000,
+                  "minimum": 8000,
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "denoise": {
+              "default": true,
+              "type": "boolean"
+            },
+            "dereverb": {
+              "default": true,
+              "type": "boolean"
+            },
+            "enable": {
+              "default": "auto",
+              "enum": [
+                true,
+                false,
+                "auto"
+              ],
+              "type": [
+                "boolean",
+                "string"
+              ]
+            },
+            "lambd": {
+              "default": 0.5,
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "nfe": {
+              "default": 64,
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "provider": {
+              "default": "resemble",
+              "enum": [
+                "resemble",
+                "clearervoice"
+              ],
+              "type": "string"
+            },
+            "solver": {
+              "default": "midpoint",
+              "type": "string"
+            },
+            "tau": {
+              "default": 0.5,
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "retain_intermediates": {
+          "default": true,
+          "type": "boolean"
+        },
+        "vocal_separation": {
+          "additionalProperties": false,
+          "properties": {
+            "enable": {
+              "default": "auto",
+              "enum": [
+                true,
+                false,
+                "auto"
+              ],
+              "type": [
+                "boolean",
+                "string"
+              ]
+            },
+            "model": {
+              "type": "string"
+            },
+            "segment_seconds": {
+              "type": ["number", "null"],
+              "minimum": 0
+            },
+            "overlap": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "maximum": 1
+            },
+            "shifts": {
+              "type": ["integer", "null"],
+              "minimum": 0
+            },
+            "device": {
+              "type": "string"
+            },
+            "dtype": {
+              "type": ["string", "null"]
+            },
+            "timeout_seconds": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "audio_quality": {
+      "additionalProperties": false,
+      "properties": {
+        "enforce_strict": {
+          "default": false,
+          "type": "boolean"
+        },
+        "min_duration_seconds": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_peak_dbfs": {
+          "type": "number"
+        },
+        "min_rms": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "bleeps": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "detect_types": {
+          "items": {
+            "enum": [
+              "tone",
+              "mute",
+              "noise"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "enable": {
+          "type": "boolean"
+        },
+        "merge_gap_ms": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_snr_db": {
+          "type": "number"
+        },
+        "suggest_words": {
+          "type": "boolean"
+        },
+        "tone_min_dur_ms": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "use_ml_classifier": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enable",
+        "detect_types",
+        "tone_min_dur_ms",
+        "merge_gap_ms",
+        "min_snr_db",
+        "suggest_words",
+        "use_ml_classifier",
+        "confidence_threshold"
+      ],
+      "type": "object"
+    },
+    "cache": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanup_on_start": {
+          "type": "boolean"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "max_size_gb": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "enabled",
+        "max_size_gb",
+        "cleanup_on_start"
+      ],
+      "type": "object"
+    },
+    "diarization": {
+      "additionalProperties": false,
+      "properties": {
+        "max_speakers": {
+          "minimum": 1,
+          "type": ["integer", "null"]
+        },
+        "min_speakers": {
+          "minimum": 1,
+          "type": ["integer", "null"]
+        },
+        "offset": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": ["number", "null"]
+        },
+        "onset": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": ["number", "null"]
+        },
+        "overlap_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": ["number", "null"]
+        },
+        "min_duration_on": {
+          "minimum": 0,
+          "type": ["number", "null"]
+        },
+        "min_duration_off": {
+          "minimum": 0,
+          "type": ["number", "null"]
+        }
+      },
+      "type": "object"
+    },
+    "environment": {
+      "description": "Named environment for this configuration.",
+      "enum": [
+        "dev",
+        "prod",
+        "staging",
+        "test"
+      ],
+      "type": "string"
+    },
+    "features": {
+      "additionalProperties": false,
+      "properties": {
+        "auto_correct_names": {
+          "type": "boolean"
+        },
+        "enable_bleep_detection": {
+          "type": "boolean"
+        },
+        "enable_transcript_builder": {
+          "type": "boolean"
+        },
+        "enable_voice_bank": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "auto_correct_names",
+        "enable_transcript_builder",
+        "enable_voice_bank",
+        "enable_bleep_detection"
+      ],
+      "type": "object"
+    },
+    "integrations": {
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "from_address": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "smtp_port": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "smtp_server": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "to_addresses": {
+              "items": {
+                "format": "email",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "use_tls": {
+              "type": "boolean"
+            },
+            "username": {
+              "$ref": "#/definitions/nullableString"
+            }
+          },
+          "required": [
+            "enabled",
+            "smtp_server",
+            "smtp_port",
+            "use_tls",
+            "username",
+            "from_address",
+            "to_addresses"
+          ],
+          "type": "object"
+        },
+        "slack": {
+          "additionalProperties": false,
+          "properties": {
+            "channel": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "webhook_url": {
+              "$ref": "#/definitions/nullableString"
+            }
+          },
+          "required": [
+            "enabled",
+            "webhook_url",
+            "channel"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "slack",
+        "email"
+      ],
+      "type": "object"
+    },
+    "logging": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "path": {
+              "$ref": "#/definitions/nullablePath"
+            },
+            "retention_days": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "rotation_mb": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "enabled",
+            "path",
+            "rotation_mb",
+            "retention_days"
+          ],
+          "type": "object"
+        },
+        "json": {
+          "type": "boolean"
+        },
+        "level": {
+          "description": "Console log level.",
+          "enum": [
+            "CRITICAL",
+            "ERROR",
+            "WARNING",
+            "INFO",
+            "DEBUG",
+            "NOTSET"
+          ],
+          "type": "string"
+        },
+        "rich_tracebacks": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "level",
+        "rich_tracebacks",
+        "json",
+        "file"
+      ],
+      "type": "object"
+    },
+    "metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "config_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "last_updated": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "monitoring": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_system_stats": {
+          "type": "boolean"
+        },
+        "enable_metrics": {
+          "type": "boolean"
+        },
+        "metrics_port": {
+          "$ref": "#/definitions/portNumber"
+        }
+      },
+      "required": [
+        "enable_metrics",
+        "metrics_port",
+        "capture_system_stats"
+      ],
+      "type": "object"
+    },
+    "outputs": {
+      "additionalProperties": false,
+      "properties": {
+        "export_formats": {
+          "items": {
+            "enum": [
+              "txt",
+              "srt",
+              "json",
+              "csv",
+              "parquet"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "include_confidence_scores": {
+          "type": "boolean"
+        },
+        "include_word_timestamps": {
+          "type": "boolean"
+        },
+        "save_intermediate_files": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "export_formats",
+        "include_confidence_scores",
+        "include_word_timestamps",
+        "save_intermediate_files"
+      ],
+      "type": "object"
+    },
+    "paths": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_dir": {
+          "$ref": "#/definitions/pathString"
+        },
+        "data_root": {
+          "$ref": "#/definitions/pathString"
+        },
+        "logs_dir": {
+          "$ref": "#/definitions/pathString"
+        },
+        "models_dir": {
+          "$ref": "#/definitions/pathString"
+        },
+        "output_root": {
+          "$ref": "#/definitions/pathString"
+        },
+        "project_root": {
+          "$ref": "#/definitions/pathString"
+        },
+        "temp_dir": {
+          "$ref": "#/definitions/pathString"
+        },
+        "voice_bank_db": {
+          "$ref": "#/definitions/pathString"
+        }
+      },
+      "required": [
+        "data_root",
+        "output_root",
+        "cache_dir",
+        "temp_dir",
+        "models_dir",
+        "voice_bank_db",
+        "logs_dir"
+      ],
+      "type": "object"
+    },
+    "processing": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_interval_seconds": {
+          "minimum": 30,
+          "type": "integer"
+        },
+        "cleanup_temp_on_finish": {
+          "type": "boolean"
+        },
+        "max_episode_duration_minutes": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "resume_on_start": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "resume_on_start",
+        "max_episode_duration_minutes",
+        "checkpoint_interval_seconds",
+        "cleanup_temp_on_finish"
+      ],
+      "type": "object"
+    },
+    "providers": {
+      "additionalProperties": false,
+      "properties": {
+        "pyannote": {
+          "additionalProperties": false,
+          "properties": {
+            "auth_token_env": {
+              "type": "string"
+            },
+            "embedding_model": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "model": {
+              "type": "string"
+            },
+            "segmentation_threshold": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "enabled",
+            "model",
+            "segmentation_threshold",
+            "auth_token_env"
+          ],
+          "type": "object"
+        },
+        "resemblyzer": {
+          "additionalProperties": false,
+          "properties": {
+            "embedding_threshold": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "min_utterance_seconds": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "model": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "model",
+            "embedding_threshold",
+            "min_utterance_seconds"
+          ],
+          "type": "object"
+        },
+        "whisper": {
+          "additionalProperties": false,
+          "properties": {
+            "beam_size": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "compute_type": {
+              "type": "string"
+            },
+            "device": {
+              "type": "string"
+            },
+            "download_root": {
+              "$ref": "#/definitions/pathString"
+            },
+            "mode": {
+              "enum": [
+                "local",
+                "api"
+              ],
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "mode",
+            "model",
+            "compute_type",
+            "device",
+            "download_root",
+            "beam_size"
+          ],
+          "type": "object"
+        },
+        "whisper_api": {
+          "additionalProperties": false,
+          "properties": {
+            "api_base_url": {
+              "format": "uri",
+              "type": "string"
+            },
+            "api_key_env": {
+              "type": "string"
+            },
+            "max_retries": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "model": {
+              "type": "string"
+            },
+            "organization_env": {
+              "type": "string"
+            },
+            "project_env": {
+              "type": "string"
+            },
+            "timeout_seconds": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          "required": [
+            "api_base_url",
+            "timeout_seconds",
+            "max_retries"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "whisper",
+        "whisper_api",
+        "pyannote",
+        "resemblyzer"
+      ],
+      "type": "object"
+    },
+    "runtime": {
+      "additionalProperties": false,
+      "properties": {
+        "device_priority": {
+          "items": {
+            "enum": [
+              "cuda",
+              "mps",
+              "cpu",
+              "auto"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "ffmpeg_path": {
+          "$ref": "#/definitions/nullablePath"
+        },
+        "max_workers": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "prefer_gpu": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_workers",
+        "prefer_gpu",
+        "device_priority",
+        "ffmpeg_path"
+      ],
+      "type": "object"
+    },
+    "transcription": {
+      "additionalProperties": false,
+      "properties": {
+        "enable_word_timestamps": {
+          "type": "boolean"
+        },
+        "initial_prompt": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "language": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "temperature": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "word_timestamps_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "language",
+        "temperature",
+        "enable_word_timestamps",
+        "initial_prompt",
+        "word_timestamps_threshold"
+      ],
+      "type": "object"
+    },
+    "ui": {
+      "additionalProperties": false,
+      "properties": {
+        "audio_player": {
+          "additionalProperties": false,
+          "properties": {
+            "keyboard_shortcuts_enabled": {
+              "type": "boolean"
+            },
+            "preroll_ms": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "waveform_enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "preroll_ms",
+            "waveform_enabled",
+            "keyboard_shortcuts_enabled"
+          ],
+          "type": "object"
+        },
+        "streamlit": {
+          "additionalProperties": false,
+          "properties": {
+            "auto_open_browser": {
+              "type": "boolean"
+            },
+            "auto_refresh_seconds": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "layout": {
+              "enum": [
+                "centered",
+                "wide"
+              ],
+              "type": "string"
+            },
+            "port": {
+              "$ref": "#/definitions/portNumber"
+            },
+            "theme": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "port",
+            "auto_open_browser",
+            "theme",
+            "layout",
+            "auto_refresh_seconds"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "streamlit",
+        "audio_player"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "description": "Configuration format version.",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "voice_bank": {
+      "additionalProperties": false,
+      "properties": {
+        "auto_backup": {
+          "type": "boolean"
+        },
+        "backup_dir": {
+          "$ref": "#/definitions/pathString"
+        },
+        "backup_frequency_days": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "match_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_embeddings_per_speaker": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_sample_duration_seconds": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "auto_backup",
+        "max_embeddings_per_speaker",
+        "backup_frequency_days",
+        "backup_dir",
+        "match_threshold",
+        "min_sample_duration_seconds"
+      ],
+      "type": "object"
+    },
+    "voice_identification": {
+      "additionalProperties": false,
+      "properties": {
+        "auto_register_new_speakers": {
+          "type": "boolean"
+        },
+        "embedding_provider": {
+          "enum": [
+            "pyannote",
+            "resemblyzer"
+          ],
+          "type": "string"
+        },
+        "high_confidence_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "low_confidence_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "medium_confidence_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_samples_required": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "similarity_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "embedding_provider",
+        "auto_register_new_speakers",
+        "min_samples_required"
+      ],
+      "type": "object"
+    },
+    "allow_mps": {
+      "description": "Allow Apple Silicon MPS (Metal Performance Shaders) for GPU acceleration",
+      "type": ["boolean", "integer"],
+      "default": false
+    }
+  },
+  "required": [
+    "version",
+    "environment",
+    "paths",
+    "logging",
+    "runtime",
+    "providers",
+    "audio",
+    "processing",
+    "transcription",
+    "diarization",
+    "voice_identification",
+    "bleeps",
+    "voice_bank",
+    "ui",
+    "outputs",
+    "features",
+    "integrations",
+    "monitoring",
+    "cache"
+  ],
+  "title": "Show-Scribe Configuration",
+  "type": "object"
+}
