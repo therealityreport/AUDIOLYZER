@@ -174,6 +174,38 @@ show_config_path = st.text_input(
 )
 st.subheader("Video Selection")
 st.caption(f"Library root: {VIDEO_LIBRARY_DIR}")
+
+# File upload widget
+uploaded_file = st.file_uploader(
+    "Upload a video file",
+    type=["mp4", "mov", "mkv", "avi", "m4v"],
+    help="Upload a video file to add it to your library. It will be saved to the video library directory.",
+)
+if uploaded_file is not None:
+    # Ensure library directory exists
+    VIDEO_LIBRARY_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Find unique filename if file already exists
+    target_path = VIDEO_LIBRARY_DIR / uploaded_file.name
+    if target_path.exists():
+        # Auto-rename with (1), (2), etc.
+        stem = target_path.stem
+        suffix = target_path.suffix
+        counter = 1
+        while target_path.exists():
+            target_path = VIDEO_LIBRARY_DIR / f"{stem} ({counter}){suffix}"
+            counter += 1
+        st.info(f"File renamed to '{target_path.name}' to avoid overwriting existing file.")
+
+    # Save uploaded file
+    with open(target_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    st.success(f"✓ Uploaded '{target_path.name}' to library")
+
+    # Auto-select the uploaded file
+    st.session_state["process_video_selection"] = target_path.name
+    st.rerun()
+
 library_files = _list_video_library()
 selected_video: Path | None = None
 if library_files:
@@ -234,7 +266,7 @@ if st.button(
             "variant": "info",
             "message": f"Autofilled episode details from '{guess['source']}'.",
         }
-        _trigger_rerun()
+        st.rerun()
     else:
         st.warning("Unable to parse show + episode from the selected filename.")
 with st.expander("Audio Preset (Advanced)", expanded=False):
@@ -243,8 +275,23 @@ with st.expander("Audio Preset (Advanced)", expanded=False):
     )
     preset_path = st.text_input("Preset file", key="process_preset_path")
     toggle_cols = st.columns(2)
-    enable_separation = toggle_cols[0].checkbox("Vocal separation", key="process_enable_separation")
-    enable_enhancement = toggle_cols[1].checkbox("Enhancement", key="process_enable_enhancement")
+    enable_separation = toggle_cols[0].checkbox(
+        "Vocal separation",
+        key="process_enable_separation",
+        help="⚠️ Takes 3-5 minutes per episode. Optional for transcription."
+    )
+    enable_enhancement = toggle_cols[1].checkbox(
+        "Enhancement",
+        key="process_enable_enhancement",
+        help="⚠️ Takes 2-4 minutes per episode. Optional for transcription."
+    )
+    if enable_separation or enable_enhancement:
+        st.warning(
+            "⏱️ Vocal separation and enhancement are CPU/GPU intensive. "
+            "Processing may take 5-10 minutes with no visible progress updates. "
+            "The process is working - please wait for completion.",
+            icon="⚠️"
+        )
     provider = st.selectbox(
         "Enhancer provider",
         options=["resemble", "clearervoice"],
@@ -479,7 +526,7 @@ if run_create_audio:
                 "message": f"Audio artifacts created for {label}.",
                 "artifacts": relative_artifacts,
             }
-            _trigger_rerun()
+            st.rerun()
 st.subheader("Existing Audio")
 if active_dir:
     audio_options = {

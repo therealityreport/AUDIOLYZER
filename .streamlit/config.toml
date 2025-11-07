@@ -1,0 +1,10 @@
+# Streamlit configuration for Show-Scribe
+
+[server]
+# Maximum file upload size in MB (default: 200)
+# Setting to 5GB to accommodate video files
+maxUploadSize = 5000
+
+[browser]
+# Don't automatically open browser on server start
+gatherUsageStats = false
